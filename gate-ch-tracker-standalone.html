@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GATE CH — Full Syllabus Tracker</title>
+<style>
+  @import url('https://fonts.cdnfonts.com/css/ibm-plex-mono');
+
+  :root{
+    --paper:#0e1f33;
+    --paper-2:#122845;
+    --paper-3:#0d1c30;
+    --line:#2a4468;
+    --ink:#e8eef7;
+    --ink-dim:#93a8c7;
+    --amber:#f2a341;
+    --amber-dim:#7a5a29;
+    --done:#4caf82;
+    --done-dim:#1f3b30;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/100% 28px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/28px 100%,
+      var(--paper);
+    background-blend-mode: overlay, overlay, normal;
+    color:var(--ink);
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    padding:20px 14px 60px;
+    min-height:100vh;
+  }
+
+  .wrap{max-width:640px;margin:0 auto;}
+
+  header{
+    border-bottom:2px solid var(--amber);
+    padding-bottom:14px;
+    margin-bottom:20px;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--amber);
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  h1{
+    font-size:21px;
+    margin:0 0 4px;
+    font-weight:700;
+    letter-spacing:-0.3px;
+  }
+  .sub{color:var(--ink-dim);font-size:12.5px;}
+
+  .progress-block{
+    margin:18px 0 22px;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    padding:14px;
+  }
+  .progress-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:8px;
+  }
+  .progress-num{font-size:26px;color:var(--amber);font-weight:700;}
+  .progress-label{font-size:11px;color:var(--ink-dim);letter-spacing:1px;text-transform:uppercase;}
+  .bar-track{height:8px;background:#0a1626;border:1px solid var(--line);position:relative;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--amber-dim),var(--amber));transition:width .3s ease;}
+
+  /* Subject level */
+  .subject{
+    margin-bottom:12px;
+    border:1px solid var(--line);
+    background:var(--paper-2);
+  }
+  .subject-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:13px 14px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .marks-tag{
+    font-size:10px;
+    color:var(--amber);
+    border:1px solid var(--amber-dim);
+    padding:2px 6px;
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  .subject-title{flex:1;font-size:14px;font-weight:700;}
+  .subject-count{font-size:11px;color:var(--ink-dim);flex-shrink:0;}
+  .chev{color:var(--ink-dim);font-size:12px;transition:transform .2s;flex-shrink:0;}
+  .subject-head.open .chev{transform:rotate(90deg);}
+
+  .subject-body{max-height:0;overflow:hidden;transition:max-height .3s ease;background:var(--paper-3);}
+  .subject-body.open{max-height:6000px;}
+  .subject-body-inner{padding:8px 10px 12px;}
+
+  /* Section level (within subject) */
+  .section{
+    margin-top:8px;
+    border:1px solid var(--line);
+    background:var(--paper-2);
+  }
+  .section-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 12px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .idx{
+    font-size:10px;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    padding:1px 5px;
+    min-width:16px;
+    text-align:center;
+    flex-shrink:0;
+  }
+  .section-title{flex:1;font-size:12.5px;font-weight:600;}
+  .section-count{font-size:10.5px;color:var(--ink-dim);flex-shrink:0;}
+  .section-head .chev{font-size:10px;}
+  .section-head.open .chev{transform:rotate(90deg);}
+
+  .items{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .items.open{max-height:2000px;}
+  .item{
+    display:flex;
+    gap:9px;
+    align-items:flex-start;
+    padding:8px 12px 8px 34px;
+    font-size:12.5px;
+    line-height:1.4;
+    border-top:1px dashed var(--line);
+    cursor:pointer;
+  }
+  .item:hover{background:rgba(242,163,65,0.05);}
+  .box{
+    width:14px;height:14px;
+    border:1.5px solid var(--ink-dim);
+    flex-shrink:0;
+    margin-top:1px;
+    position:relative;
+  }
+  .item.checked .box{border-color:var(--done);background:var(--done-dim);}
+  .item.checked .box::after{
+    content:'';
+    position:absolute;
+    left:2.5px;top:-0.5px;
+    width:4px;height:7px;
+    border:solid var(--done);
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  .item.checked .label{color:var(--ink-dim);text-decoration:line-through;text-decoration-color:var(--line);}
+
+  .priority-note{
+    margin-top:22px;
+    padding:14px;
+    border-left:3px solid var(--amber);
+    background:var(--paper-2);
+    font-size:12px;
+    color:var(--ink-dim);
+    line-height:1.65;
+  }
+  .priority-note strong{color:var(--ink);}
+
+  .reset-row{margin-top:28px;text-align:center;}
+  .reset-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-family:inherit;
+    font-size:11px;
+    padding:8px 16px;
+    cursor:pointer;
+    letter-spacing:1px;
+  }
+  .reset-btn:hover{border-color:var(--amber);color:var(--amber);}
+
+  .loading{color:var(--ink-dim);font-size:12px;text-align:center;padding:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">GATE 2027 · Chemical Engineering (CH)</div>
+    <h1>Full Syllabus Tracker</h1>
+    <div class="sub">General Aptitude + Engineering Mathematics + 8 core subjects · tap to check off</div>
+  </header>
+
+  <div class="progress-block">
+    <div class="progress-row">
+      <span class="progress-num" id="progressNum">0 / 0</span>
+      <span class="progress-label">topics covered overall</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+  </div>
+
+  <div id="subjects"></div>
+
+  <div class="priority-note">
+    <strong>Suggested prep priority</strong> — General Aptitude and Engineering Mathematics first (guaranteed 28 marks, stable every year). Then Chemical Reaction Engineering, Fluid Mechanics &amp; Mechanical Operations, and Mass Transfer (highest-weightage core subjects). Then Heat Transfer and Instrumentation &amp; Process Control. Finish with Chemical Technology, Process Calculations &amp; Thermodynamics, and Plant Design &amp; Economics.
+  </div>
+
+  <div class="reset-row">
+    <button class="reset-btn" id="resetBtn">RESET ALL PROGRESS</button>
+  </div>
+
+  <div class="loading" id="loadingMsg">syncing…</div>
+</div>
+
+<script>
+const DATA = [
+  {
+    subject: "General Aptitude",
+    marks: "15 marks",
+    sections: [
+      {
+        title: "Verbal Aptitude",
+        items: [
+          "English grammar",
+          "Sentence completion",
+          "Verbal analogies",
+          "Word groups",
+          "Instructions",
+          "Critical reasoning and verbal deduction"
+        ]
+      },
+      {
+        title: "Quantitative Aptitude",
+        items: [
+          "Arithmetic",
+          "Algebra",
+          "Geometry and mensuration",
+          "Permutation and combination",
+          "Probability and statistics",
+          "Data interpretation"
+        ]
+      },
+      {
+        title: "Analytical Aptitude",
+        items: [
+          "Logic: deduction and induction",
+          "Analogy",
+          "Numerical relations and reasoning"
+        ]
+      },
+      {
+        title: "Spatial Aptitude",
+        items: [
+          "Transformation of shapes",
+          "Assembling and grouping",
+          "Paper folding, cutting and patterns"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Engineering Mathematics",
+    marks: "13 marks",
+    sections: [
+      {
+        title: "Linear Algebra",
+        items: [
+          "Matrix algebra",
+          "Systems of linear equations",
+          "Eigenvalues and eigenvectors"
+        ]
+      },
+      {
+        title: "Calculus",
+        items: [
+          "Functions of single variable, limits, continuity, differentiability",
+          "Taylor series",
+          "Mean value theorems",
+          "Evaluation of definite and improper integrals",
+          "Partial derivatives",
+          "Total derivative",
+          "Maxima and minima",
+          "Gradient, Divergence and Curl",
+          "Vector identities",
+          "Directional derivatives",
+          "Line, surface and volume integrals",
+          "Stokes, Gauss and Green's theorems"
+        ]
+      },
+      {
+        title: "Differential Equations",
+        items: [
+          "First order equations (linear and nonlinear)",
+          "Higher order linear ODEs with constant coefficients",
+          "Cauchy's and Euler's equations",
+          "Initial and boundary value problems",
+          "Laplace transforms",
+          "Solutions of 1D heat/wave equations and Laplace equation"
+        ]
+      },
+      {
+        title: "Complex Variables",
+        items: [
+          "Complex numbers",
+          "Polar form of complex number",
+          "Triangle inequality"
+        ]
+      },
+      {
+        title: "Probability and Statistics",
+        items: [
+          "Definitions of probability and sampling theorems",
+          "Conditional probability",
+          "Mean, median, mode and standard deviation",
+          "Random variables",
+          "Poisson, Normal and Binomial distributions",
+          "Linear regression analysis"
+        ]
+      },
+      {
+        title: "Numerical Methods",
+        items: [
+          "Numerical solutions of linear and non-linear algebraic equations",
+          "Integration by trapezoidal and Simpson's rule",
+          "Single and multi-step methods for numerical ODE solutions"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Chemical Reaction Engineering",
+    marks: "8–11 marks",
+    sections: [
+      {
+        title: "Kinetics & Ideal Reactors",
+        items: [
+          "Theories of reaction rates",
+          "Kinetics of homogeneous reactions, interpretation of kinetic data",
+          "Single and multiple reactions in ideal reactors",
+          "Kinetics of enzyme reactions (Michaelis-Menten and Monod models)"
+        ]
+      },
+      {
+        title: "Non-Ideal Reactors",
+        items: [
+          "Non-ideal reactors",
+          "Residence time distribution, single parameter model",
+          "Non-isothermal reactors"
+        ]
+      },
+      {
+        title: "Catalysis",
+        items: [
+          "Kinetics of heterogeneous catalytic reactions",
+          "Diffusion effects in catalysis",
+          "Rate and performance equations for catalyst deactivation"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Fluid Mechanics & Mechanical Operations",
+    marks: "8–10 marks",
+    sections: [
+      {
+        title: "Fluid Mechanics Fundamentals",
+        items: [
+          "Fluid statics, surface tension, Newtonian and non-Newtonian fluids, transport properties",
+          "Shell balances incl. differential Bernoulli equation and energy balance",
+          "Equation of continuity, equation of motion, equation of mechanical energy",
+          "Macroscopic friction factors, dimensional analysis and similitude"
+        ]
+      },
+      {
+        title: "Flow Systems",
+        items: [
+          "Flow through pipeline systems, velocity profiles, flow meters, pumps and compressors",
+          "Elementary boundary layer theory, flow past immersed bodies incl. packed and fluidized beds",
+          "Turbulent flow: fluctuating velocity, universal velocity profile, pressure drop"
+        ]
+      },
+      {
+        title: "Mechanical Operations",
+        items: [
+          "Particle size and shape, particle size distribution",
+          "Size reduction and classification of solid particles",
+          "Free and hindered settling",
+          "Centrifuge and cyclones",
+          "Thickening and classification, filtration, agitation and mixing",
+          "Conveying of solids"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Mass Transfer",
+    marks: "8 marks",
+    sections: [
+      {
+        title: "Fundamentals",
+        items: [
+          "Fick's laws, molecular diffusion in fluids",
+          "Mass transfer coefficients, film, penetration and surface renewal theories",
+          "Momentum, heat and mass transfer analogies",
+          "Stage-wise and continuous contacting and stage efficiencies",
+          "HTU and NTU concepts"
+        ]
+      },
+      {
+        title: "Separation Equipment",
+        items: [
+          "Distillation: design and operation",
+          "Absorption: design and operation",
+          "Leaching",
+          "Liquid-liquid extraction",
+          "Drying",
+          "Humidification and dehumidification",
+          "Adsorption",
+          "Membrane separations (MF, UF, NF, RO)"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Heat Transfer",
+    marks: "8 marks",
+    sections: [
+      {
+        title: "Heat Transfer",
+        items: [
+          "Equation of energy, steady and unsteady heat conduction",
+          "Convection and radiation",
+          "Thermal boundary layer and heat transfer coefficients",
+          "Boiling, condensation and evaporation",
+          "Types of heat exchangers and evaporators, process calculations",
+          "Design of double pipe, shell and tube heat exchangers",
+          "Design of single and multiple effect evaporators"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Instrumentation & Process Control",
+    marks: "6–8 marks",
+    sections: [
+      {
+        title: "Measurement & Modeling",
+        items: [
+          "Measurement of process variables",
+          "Sensors and transducers",
+          "P&ID equipment symbols",
+          "Process modeling and linearization",
+          "Transfer functions and dynamic responses of various systems",
+          "Systems with inverse response",
+          "Process reaction curve"
+        ]
+      },
+      {
+        title: "Control Systems",
+        items: [
+          "Controller modes (P, PI, PID)",
+          "Control valves",
+          "Transducer dynamics",
+          "Analysis of closed loop systems: stability, frequency response",
+          "Controller tuning, cascade and feed forward control"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Process Calculations & Thermodynamics",
+    marks: "3–6 marks",
+    sections: [
+      {
+        title: "Process Calculations",
+        items: [
+          "Steady and unsteady state mass and energy balances (multiphase, multi-component, reacting/non-reacting)",
+          "Use of tie components",
+          "Recycle, bypass and purge calculations",
+          "Gibbs phase rule and degree of freedom analysis"
+        ]
+      },
+      {
+        title: "Thermodynamics",
+        items: [
+          "First and Second laws of thermodynamics",
+          "Applications of first law to closed and open systems",
+          "Second law and Entropy",
+          "Thermodynamic properties of pure substances: EOS and residual properties",
+          "Properties of mixtures: partial molar properties, fugacity, excess properties, activity coefficients",
+          "Phase equilibria: predicting VLE of systems",
+          "Chemical reaction equilibrium"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Plant Design & Economics",
+    marks: "3–4 marks",
+    sections: [
+      {
+        title: "Plant Design & Economics",
+        items: [
+          "Principles of process economics and cost estimation",
+          "Depreciation and total annualized cost",
+          "Cost indices",
+          "Rate of return, payback period, discounted cash flow",
+          "Optimization in process design",
+          "Sizing of equipment: heat exchangers, multistage contactors"
+        ]
+      }
+    ]
+  },
+  {
+    subject: "Chemical Technology",
+    marks: "4–6 marks",
+    sections: [
+      {
+        title: "Chemical Technology",
+        items: [
+          "Inorganic chemical industries (sulfuric acid, phosphoric acid, chlor-alkali)",
+          "Fertilizers (Ammonia, Urea, SSP and TSP)",
+          "Natural products industries (Pulp and Paper, Sugar, Oil, and Fats)",
+          "Petroleum refining and petrochemicals",
+          "Polymerization industries (polyethylene, polypropylene, PVC, polyester fibers)"
+        ]
+      }
+    ]
+  }
+];
+
+const STORAGE_KEY = "gate-ch-full-progress";
+let checkedState = {};
+
+function keyFor(si, sci, ii){ return si + "-" + sci + "-" + ii; }
+
+function allItemKeys(){
+  const keys = [];
+  DATA.forEach((subj, si) => subj.sections.forEach((sec, sci) => sec.items.forEach((_, ii) => keys.push(keyFor(si, sci, ii)))));
+  return keys;
+}
+
+function subjectKeys(si){
+  const keys = [];
+  DATA[si].sections.forEach((sec, sci) => sec.items.forEach((_, ii) => keys.push(keyFor(si, sci, ii))));
+  return keys;
+}
+
+function sectionKeys(si, sci){
+  const keys = [];
+  DATA[si].sections[sci].items.forEach((_, ii) => keys.push(keyFor(si, sci, ii)));
+  return keys;
+}
+
+function updateOverallProgress(){
+  const keys = allItemKeys();
+  const done = keys.filter(k => checkedState[k]).length;
+  document.getElementById("progressNum").textContent = done + " / " + keys.length;
+  const pct = keys.length ? Math.round((done / keys.length) * 100) : 0;
+  document.getElementById("barFill").style.width = pct + "%";
+}
+
+// Track open/closed UI state separately so re-render doesn't collapse things
+let openSubjects = {};
+let openSections = {};
+
+function render(){
+  const container = document.getElementById("subjects");
+  container.innerHTML = "";
+
+  DATA.forEach((subj, si) => {
+    const sKeys = subjectKeys(si);
+    const sDone = sKeys.filter(k => checkedState[k]).length;
+
+    const subjEl = document.createElement("div");
+    subjEl.className = "subject";
+
+    const head = document.createElement("div");
+    head.className = "subject-head" + (openSubjects[si] ? " open" : "");
+    head.innerHTML = `
+      <span class="marks-tag">${subj.marks}</span>
+      <span class="subject-title">${subj.subject}</span>
+      <span class="subject-count">${sDone}/${sKeys.length}</span>
+      <span class="chev">▶</span>
+    `;
+    head.addEventListener("click", () => {
+      openSubjects[si] = !openSubjects[si];
+      render();
+    });
+
+    const body = document.createElement("div");
+    body.className = "subject-body" + (openSubjects[si] ? " open" : "");
+    const bodyInner = document.createElement("div");
+    bodyInner.className = "subject-body-inner";
+
+    subj.sections.forEach((sec, sci) => {
+      const secKeys = sectionKeys(si, sci);
+      const secDone = secKeys.filter(k => checkedState[k]).length;
+      const openKey = si + "-" + sci;
+
+      const secEl = document.createElement("div");
+      secEl.className = "section";
+
+      const secHead = document.createElement("div");
+      secHead.className = "section-head" + (openSections[openKey] ? " open" : "");
+      secHead.innerHTML = `
+        <span class="idx">${sci + 1}</span>
+        <span class="section-title">${sec.title}</span>
+        <span class="section-count">${secDone}/${secKeys.length}</span>
+        <span class="chev">▶</span>
+      `;
+      secHead.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openSections[openKey] = !openSections[openKey];
+        render();
+      });
+
+      const itemsEl = document.createElement("div");
+      itemsEl.className = "items" + (openSections[openKey] ? " open" : "");
+
+      sec.items.forEach((label, ii) => {
+        const key = keyFor(si, sci, ii);
+        const itemEl = document.createElement("div");
+        itemEl.className = "item" + (checkedState[key] ? " checked" : "");
+        itemEl.innerHTML = `<div class="box"></div><div class="label">${label}</div>`;
+        itemEl.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          checkedState[key] = !checkedState[key];
+          await saveProgress();
+          render();
+        });
+        itemsEl.appendChild(itemEl);
+      });
+
+      secEl.appendChild(secHead);
+      secEl.appendChild(itemsEl);
+      bodyInner.appendChild(secEl);
+    });
+
+    body.appendChild(bodyInner);
+    subjEl.appendChild(head);
+    subjEl.appendChild(body);
+    container.appendChild(subjEl);
+  });
+
+  updateOverallProgress();
+}
+
+async function loadProgress(){
+  const loadingMsg = document.getElementById("loadingMsg");
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      checkedState = JSON.parse(raw);
+    }
+  }catch(e){
+    checkedState = {};
+  }
+  loadingMsg.style.display = "none";
+  render();
+}
+
+async function saveProgress(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedState));
+  }catch(e){
+    console.error("Failed to save progress", e);
+  }
+}
+
+document.getElementById("resetBtn").addEventListener("click", async () => {
+  checkedState = {};
+  await saveProgress();
+  render();
+});
+
+loadProgress();
+</script>
+</body>
+</html>
